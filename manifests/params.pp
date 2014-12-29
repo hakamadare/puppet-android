@@ -28,6 +28,9 @@ class android::params {
 
       case $::osfamily {
         'Debian': {
+          $base_libs = ['libstdc++6', 'libgcc1', 'zlib1g', 'libncurses5']
+          $32bit_libs = suffix($base_libs, ':i386')
+          $arch_libs = suffix($base_libs, $::architecture)
           case $::operatingsystem {
             'Ubuntu': {
               if ($::lsbmajdistrelease < 11) {
@@ -36,7 +39,7 @@ class android::params {
               }
               elsif ($::lsbmajdistrelease < 14) {
                 # natty through trusty
-                $sdk_32bit_libs = ['libstdc++6:i386', 'libgcc1:i386', 'zlib1g:i386', 'libncurses5:i386']
+                $sdk_32bit_libs = $32bit_libs
               }
               else {
                 # trusty and up
@@ -50,7 +53,7 @@ class android::params {
               }
               else {
                 # wheezy and up
-                $sdk_32bit_libs = ['libstdc++6:i386', 'libgcc1:i386', 'zlib1g:i386', 'libncurses5:i386']
+                $sdk_32bit_libs = $32bit_libs
               }
             }
             default: {
@@ -60,7 +63,10 @@ class android::params {
         }
         'RedHat','Amazon': {
           # http://fedoraproject.org/wiki/HOWTO_Setup_Android_Development#32_bit_packages
-          $sdk_32bit_libs = ['glibc.i686', 'glibc-devel.i686', 'libstdc++.i686', 'zlib-devel.i686', 'ncurses-devel.i686']
+          $base_libs = ['glibc', 'glibc-devel', 'libstdc++', 'zlib-devel', 'ncurses-devel']
+          $32bit_libs = suffix(['glibc', 'glibc-devel', 'libstdc++', 'zlib-devel', 'ncurses-devel'], '.i386')
+          $arch_libs = suffix(['glibc', 'glibc-devel', 'libstdc++', 'zlib-devel', 'ncurses-devel'], $::architecture)
+          $sdk_32bit_libs = $32bit_libs
         }
         default: {
           fail("Unsupported Linux distribution: ${::osfamily}")

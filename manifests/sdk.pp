@@ -13,6 +13,7 @@
 #
 class android::sdk (
   $sdk_32bit_libs = $android::params::sdk_32bit_libs,
+  $sdk_arch_libs = $android::params::arch_libs,
 ) inherits android::params {
   include android::paths
   include wget
@@ -58,6 +59,7 @@ class android::sdk (
   # For 64bit systems, we need to install some 32bit libraries for the SDK
   # to work.
   if ($sdk_32bit_libs) and ($::architecture == 'x86_64' or $::architecture == 'amd64') {
-    ensure_packages($sdk_32bit_libs)
+    ensure_resource('package', $sdk_arch_libs, { 'ensure'  => 'latest' } )
+    ensure_resource('package', $sdk_32bit_libs, { 'ensure' => 'latest', 'require' => "Package[$sdk_arch_libs]" } )
   }
 }
